@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Property - Makazi Link{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0 fw-bold"><i class="fas fa-plus-circle me-2"></i>List New Property</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <h5 class="text-muted mb-3 border-bottom pb-2">Basic Info</h5>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Title (e.g. Spacious Bedsitter near Highway)</label>
+                                {{ form.title }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Monthly Rent (KES)</label>
+                                {{ form.rent_amount }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Deposit (KES)</label>
+                                {{ form.deposit_amount }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Property Type</label>
+                                {{ form.property_type }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Main Image</label>
+                                {{ form.image }} </div>
+                        </div>
+
+                        <h5 class="text-muted mt-4 mb-3 border-bottom pb-2">Location</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Area (e.g. Mazeras)</label>
+                                {{ form.location_area }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Dist. to Highway (KM)</label>
+                                {{ form.distance_to_highway }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Google Maps Link</label>
+                                {{ form.google_maps_link }}
+                            </div>
+                        </div>
+
+                        <h5 class="text-muted mt-4 mb-3 border-bottom pb-2">Amenities</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Water Source</label>
+                                {{ form.water_source }}
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check mt-4">
+                                    {{ form.has_token_electricity }}
+                                    <label class="form-check-label">Token Power?</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check mt-4">
+                                    {{ form.is_tiled }}
+                                    <label class="form-check-label">Tiled Floor?</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Full Description</label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">🚀 Post Listing</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

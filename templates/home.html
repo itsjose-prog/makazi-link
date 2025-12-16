@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Makazi Link{% endblock %}
+
+{% block content %}
+<header class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-3">Find Your Sanctuary in Mazeras</h1>
+        <p class="lead mb-4 opacity-75">Verified homes. Transparent pricing. Instant bookings.</p>
+        
+        <form action="{% url 'home' %}" method="GET" class="bg-white p-2 rounded-pill shadow-lg d-inline-flex align-items-center" style="max-width: 600px; width: 100%;">
+            <i class="fas fa-search ms-3 text-muted"></i>
+            <input type="text" name="q" class="form-control border-0 shadow-none ms-2" placeholder="Search location (e.g. Mazeras, Voi)..." value="{{ request.GET.q }}">
+            <button type="submit" class="btn btn-primary rounded-pill px-4">Search</button>
+        </form>
+        
+    </div>
+</header>
+
+<div class="container mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h6 class="text-primary fw-bold text-uppercase ls-1">Discover</h6>
+            <h2 class="fw-bold">Latest Properties</h2>
+        </div>
+        <a href="#" class="text-decoration-none fw-bold text-dark">View All <i class="fas fa-arrow-right ms-1"></i></a>
+    </div>
+
+    <div class="row g-4">
+        {% for property in properties %}
+        <div class="col-md-4">
+            <div class="card property-card h-100">
+                
+                <div class="card-img-wrapper">
+                    {% if property.is_verified %}
+                    <span class="badge-verified"><i class="fas fa-check-circle me-1"></i> Verified</span>
+                    {% endif %}
+                    
+                    {% if property.images.first %}
+                        <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}">
+                    {% else %}
+                        <div class="bg-secondary h-100 d-flex align-items-center justify-content-center text-white">No Image</div>
+                    {% endif %}
+                    
+                    <span class="price-tag">KES {{ property.rent_amount|floatformat:0 }}</span>
+                </div>
+                
+                <div class="card-body">
+                    <div class="text-muted small mb-2">
+                        <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ property.location_area }}
+                    </div>
+                    <h5 class="card-title fw-bold text-truncate">{{ property.title }}</h5>
+                    
+                    <hr class="my-3 opacity-25">
+                    
+                    <div class="d-flex justify-content-between text-muted small mb-3">
+                        <span><i class="fas fa-bed me-1"></i> {{ property.get_property_type_display }}</span>
+                        <span><i class="fas fa-bolt me-1"></i> {% if property.has_token_electricity %}Token{% else %}Shared{% endif %}</span>
+                        <span><i class="fas fa-tint me-1"></i> {{ property.get_water_source_display }}</span>
+                    </div>
+
+                    <a href="{% url 'property_detail' property.slug %}" class="btn btn-outline-dark w-100 rounded-pill">View Details</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <h3 class="text-muted">No listings yet. Be the first landlord!</h3>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}My Dashboard - Makazi Link{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h2 class="fw-bold">Welcome, {{ user.username }}! 👋</h2>
+            <p class="text-muted">Manage your listings and view your leads.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'add_property' %}" class="btn btn-primary rounded-pill">
+                <i class="fas fa-plus me-2"></i> Add New Property
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold">🏠 My Listings</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Title</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Leads</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for property in properties %}
+                                <tr>
+                                    <td class="ps-4 fw-bold">
+                                        <a href="{% url 'property_detail' property.slug %}" class="text-decoration-none text-dark">
+                                            {{ property.title }}
+                                        </a>
+                                    </td>
+                                    <td>KES {{ property.rent_amount }}</td>
+                                    <td>
+                                        {% if property.is_verified %}
+                                            <span class="badge bg-success">Verified</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info text-dark rounded-pill">
+                                            {{ property.viewingrequest_set.count }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">
+                                        You haven't listed any houses yet.
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-secondary text-white py-3">
+                    <h5 class="mb-0 fw-bold">🔥 Recent Leads</h5>
+                </div>
+                <div class="card-body">
+                    {% for lead in leads %}
+                    <div class="d-flex align-items-center mb-3 border-bottom pb-3">
+                        <div class="bg-light rounded-circle p-2 me-3 text-primary">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold">{{ lead.seeker_phone }}</h6>
+                            <small class="text-muted">Paid to view: {{ lead.property.title|truncatechars:20 }}</small>
+                            <br>
+                            <small class="text-success fw-bold">Verified Payment</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-ghost fa-2x mb-2"></i>
+                        <p>No paid viewings yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

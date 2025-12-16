@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Makazi Link{% endblock %}
+
+{% block content %}
+<div class="container-fluid h-100">
+    <div class="row h-100 align-items-center">
+        
+        <div class="col-md-6 d-none d-md-block p-0">
+            <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" 
+                 alt="Login Cover" style="height: 100vh; width: 100%; object-fit: cover;">
+        </div>
+
+        <div class="col-md-6 bg-white" style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+            <div style="max-width: 400px; width: 100%; padding: 20px;">
+                <h2 class="fw-bold mb-4 text-secondary">Welcome Back</h2>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                        <div class="alert alert-danger small">Username or Password is incorrect.</div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Username</label>
+                        <input type="text" name="username" class="form-control p-3 bg-light border-0" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-muted small">Password</label>
+                        <input type="password" name="password" class="form-control p-3 bg-light border-0" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">Log In</button>
+                </form>
+
+                <p class="mt-4 text-center text-muted">
+                    Don't have an account? <a href="{% url 'signup' %}" class="fw-bold text-primary">Join Makazi Link</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
