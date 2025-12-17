@@ -31,31 +31,4 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-    # --- TEMPORARY ADMIN FIX START ---
-from django.urls import path
-from django.http import HttpResponse
-from django.contrib.auth import get_user_model
-
-def fix_admin_view(request):
-    try:
-        User = get_user_model()
-        # Create or Get the admin user
-        user, created = User.objects.get_or_create(username='admin')
-        
-        # FORCE the password
-        user.set_password('admin123')
-        user.email = 'admin@example.com'
-        user.is_staff = True
-        user.is_superuser = True
-        user.save()
-        
-        status = "CREATED NEW" if created else "UPDATED EXISTING"
-        return HttpResponse(f"<h1>SUCCESS!</h1><p>User: admin</p><p>Password: admin123</p><p>Status: {status}</p>")
-    except Exception as e:
-        return HttpResponse(f"<h1>ERROR</h1><p>{str(e)}</p>")
-
-# Add this specific URL to your patterns
-urlpatterns += [
-    path('fix-admin-now/', fix_admin_view),
-]
-# --- TEMPORARY ADMIN FIX END ---
+    
