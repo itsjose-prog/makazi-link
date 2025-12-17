@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 from pathlib import Path
 from decouple import config # This allows us to read from .env file
 import dj_database_url
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -68,8 +69,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # UPDATE THIS LINE BELOW:
-        'DIRS': [BASE_DIR / 'templates'], 
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # <--- FORCE THE PATH
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
