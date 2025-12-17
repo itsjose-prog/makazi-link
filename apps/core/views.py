@@ -1,78 +1,39 @@
-from django.shortcuts import render, get_object_or_404
-from apps.properties.models import Property
-from django.db.models import Q # <--- Import this for advanced search
-from apps.properties.models import Property
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from .models import Property
 from .forms import PropertyForm
 
-#login dashboard
-from django.contrib.auth.decorators import login_required
-from apps.payments.models import ViewingRequest
-
+# --- 1. HOMEPAGE VIEW ---
 def home(request):
-    # 1. Start with all available properties
-    properties = Property.objects.filter(is_available=True).order_by('-created_at')
-    
-    # 2. Check if user is searching
-    query = request.GET.get('q') # Get the text from the search box
-    
-    if query:
-        # Filter by Title OR Location OR Description
-        properties = properties.filter(
-            Q(title__icontains=query) | 
-            Q(location_area__icontains=query) |
-            Q(description__icontains=query)
-        )
-    
-    # 3. Limit to 6 results if just browsing, but show all if searching
-    if not query:
-        properties = properties[:6]
+    # This fetches all properties from the database (newest first)
+    properties = Property.objects.all().order_by('-created_at')
+    # It sends the list to your HTML
+    return render(request, 'core/home.html', {'properties': properties})
 
-    context = {
-        'properties': properties
-    }
-    return render(request, 'home.html', context)
-
+# --- 2. PROPERTY DETAIL VIEW ---
 def property_detail(request, slug):
-    # This function looks for a house with this specific "slug".
-    # If it doesn't exist, it shows a 404 Error (Professional handling).
-    property = get_object_or_404(Property, slug=slug)
-    
-    context = {
-        'property': property
-    }
-    return render(request, 'property_detail.html', context)
+    property_obj = get_object_or_404(Property, slug=slug)
+    return render(request, 'core/property_detail.html', {'property': property_obj})
 
-
-@login_required # Security: Block non-logged-in users
+# --- 3. DASHBOARD VIEW ---
+@login_required
 def dashboard(request):
-    # 1. Get properties belonging to this user
-    my_properties = request.user.properties.all()
+    # Fetch only the properties created by the current user
+    my_properties = Property.objects.filter(landlord=request.user).order_by('-created_at')
     
-    # 2. Get viewing requests (Leads) for these properties
-    # We filter for requests where payment was SUCCESSFUL
-    my_leads = ViewingRequest.objects.filter(
-        property__in=my_properties, 
-        has_paid_viewing_fee=True
-    ).order_by('-created_at')
-    
-    context = {
-        'properties': my_properties,
-        'leads': my_leads
-    }
-    return render(request, 'dashboard.html', context)
+    return render(request, 'core/dashboard.html', {'properties': my_properties})
 
-@login_required # Checks if user is logged in. If not, sends them to login page.
+# --- 4. ADD PROPERTY VIEW ---
+@login_required
 def add_property(request):
     if request.method == 'POST':
-        form = PropertyForm(request.POST, request.FILES) # request.FILES is crucial for images!
+        form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            property_obj = form.save(commit=False) # Pause saving for a second
-            property_obj.landlord = request.user   # Stamp the logged-in user as the owner
-            property_obj.save()                    # Now save to database
-            return redirect('home') # Go back to homepage after success
+            property_obj = form.save(commit=False)
+            property_obj.landlord = request.user
+            property_obj.save()
+            return redirect('dashboard')
     else:
-        form = PropertyForm() # Create an empty form
-
+        form = PropertyForm()
+    
     return render(request, 'core/add_property.html', {'form': form})
