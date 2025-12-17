@@ -18,9 +18,15 @@ from django.contrib import admin
 from django.urls import path, include  
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.core import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.home, name='home'),
+    path('add-property/', views.add_property, name='add_property'),
+    path('property/<slug:slug>/', views.property_detail, name='property_detail'),
+    path('dashboard/', views.dashboard, name='dashboard'),
+    
     path('', include('apps.core.urls')), # Core app URLs
     path('payments/', include('apps.payments.urls')), # Payments URLs
     path('accounts/', include('apps.accounts.urls')), # Accounts URLs
