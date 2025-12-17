@@ -30,7 +30,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['makazi-link.onrender.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
