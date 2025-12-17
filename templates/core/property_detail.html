@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ property.title }} - Makazi Link{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ property.title }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-8">
+            
+            <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                {% if property.image %}
+                    <img src="{{ property.image.url }}" class="w-100 rounded" style="height: 500px; object-fit: cover;" alt="{{ property.title }}">
+                {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="height: 400px;">
+                        <h3>No Image Available</h3>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="p-4 bg-white shadow-sm rounded">
+                <h4 class="fw-bold">Description</h4>
+                <p class="text-muted" style="white-space: pre-line;">{{ property.description }}</p>
+                
+                <hr>
+
+                <h5 class="mt-4 fw-bold">Details & Amenities</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-bed me-2 text-primary"></i> Bedrooms: <strong>{{ property.bedrooms }}</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-bath me-2 text-primary"></i> Bathrooms: <strong>{{ property.bathrooms }}</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i> Location: <strong>{{ property.location }}</strong>
+                    </li>
+                    <li class="list-group-item bg-transparent">
+                        <i class="fas fa-clock me-2 text-primary"></i> Listed: <strong>{{ property.created_at|date:"M d, Y" }}</strong>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-lg border-0 sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h3 class="text-primary fw-bold">KES {{ property.price|floatformat:0 }}</h3>
+                    <p class="text-muted">per month</p>
+                    <hr>
+                    
+                    <p><strong>Deposit:</strong> <span class="text-muted">Contact Landlord</span></p>
+                    
+                    <div class="card p-3 bg-light border-0">
+                        <h6 class="fw-bold mb-3">Book a Viewing (KES 100)</h6>
+                        
+                        <form action="#" method="POST"> 
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <input type="text" name="phone" class="form-control" placeholder="0712345678" required>
+                            </div>
+                            <button type="button" class="btn btn-success w-100" onclick="alert('Payment system coming soon!')">
+                                📲 Pay with M-Pesa
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card shadow-sm border-0 mt-3">
+                        <div class="card-body text-center">
+                            <h6 class="fw-bold text-muted mb-3">Have questions?</h6>
+                            
+                            <a href="https://wa.me/?text=I'm%20interested%20in%20{{ property.title }}" target="_blank" class="btn btn-outline-success w-100 py-2 mb-3">
+                                <i class="fab fa-whatsapp fa-lg me-2"></i> Chat with Agent
+                            </a>
+                            
+                            <small class="text-muted">Or call support</small>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 small text-muted text-center">
+                        <p><i class="fas fa-shield-alt text-success"></i> <strong>Makazi Verified:</strong> <br> We have physically inspected this property.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
