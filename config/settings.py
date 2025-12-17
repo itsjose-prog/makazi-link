@@ -149,6 +149,18 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # --- CLOUDINARY CONFIGURATION ---
 import os
 
+# --- DEBUGGING BLOCK (DELETE LATER) ---
+import os
+print("--- DEBUG: CLOUDINARY CHECK ---")
+print(f"CLOUD_NAME from Env: {os.environ.get('CLOUDINARY_CLOUD_NAME')}")
+print(f"API_KEY from Env: {os.environ.get('CLOUDINARY_API_KEY')}")
+print("--- DEBUG END ---")
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    # ... rest of your code ...
+}
+
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
