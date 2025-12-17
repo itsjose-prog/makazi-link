@@ -2,6 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from apps.properties.models import Property
 from django.db.models import Q # <--- Import this for advanced search
 from apps.properties.models import Property
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import PropertyForm
 
 #login dashboard
 from django.contrib.auth.decorators import login_required
@@ -59,3 +62,17 @@ def dashboard(request):
         'leads': my_leads
     }
     return render(request, 'dashboard.html', context)
+
+@login_required # Checks if user is logged in. If not, sends them to login page.
+def add_property(request):
+    if request.method == 'POST':
+        form = PropertyForm(request.POST, request.FILES) # request.FILES is crucial for images!
+        if form.is_valid():
+            property_obj = form.save(commit=False) # Pause saving for a second
+            property_obj.landlord = request.user   # Stamp the logged-in user as the owner
+            property_obj.save()                    # Now save to database
+            return redirect('home') # Go back to homepage after success
+    else:
+        form = PropertyForm() # Create an empty form
+
+    return render(request, 'core/add_property.html', {'form': form})
