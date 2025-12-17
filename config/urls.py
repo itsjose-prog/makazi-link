@@ -15,26 +15,29 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include  
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.core import views
+
+# Note: We removed 'from apps.core import views' because we don't need it here anymore.
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home, name='home'),
-    path('add-property/', views.add_property, name='add_property'),
-    path('property/<slug:slug>/', views.property_detail, name='property_detail'),
-    path('dashboard/', views.dashboard, name='dashboard'),
-    
-    path('', include('apps.core.urls')), # Core app URLs
-    path('payments/', include('apps.payments.urls')), # Payments URLs
-    path('accounts/', include('apps.accounts.urls')), # Accounts URLs
-    path('properties/', include('apps.properties.urls')), # Properties URLs
+
+    # --- THE CORE APP ---
+    # This single line handles Home, Add-Property, Dashboard, and Property Details.
+    # It tells Django: "Go look at apps/core/urls.py for the list."
+    path('', include('apps.core.urls')), 
+
+    # --- OTHER APPS (Untouched) ---
+    path('payments/', include('apps.payments.urls')),
+    path('accounts/', include('apps.accounts.urls')),
+    path('properties/', include('apps.properties.urls')),
 ]
 
-# (Keep the static/media code at the bottom)
+# Media & Static Helper (For images to work)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
    
