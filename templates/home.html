@@ -3,7 +3,7 @@
 {% block title %}Home - Makazi Link{% endblock %}
 
 {% block content %}
-<header class="hero-section text-center">
+<header class="hero-section text-center py-5 bg-light mb-5">
     <div class="container">
         <h1 class="display-3 fw-bold mb-3">Find Your Sanctuary in Mazeras</h1>
         <p class="lead mb-4 opacity-75">Verified homes. Transparent pricing. Instant bookings.</p>
@@ -13,7 +13,6 @@
             <input type="text" name="q" class="form-control border-0 shadow-none ms-2" placeholder="Search location (e.g. Mazeras, Voi)..." value="{{ request.GET.q }}">
             <button type="submit" class="btn btn-primary rounded-pill px-4">Search</button>
         </form>
-        
     </div>
 </header>
 
@@ -29,34 +28,35 @@
     <div class="row g-4">
         {% for property in properties %}
         <div class="col-md-4">
-            <div class="card property-card h-100">
+            <div class="card property-card h-100 shadow-sm border-0">
                 
-                <div class="card-img-wrapper">
-                    {% if property.is_verified %}
-                    <span class="badge-verified"><i class="fas fa-check-circle me-1"></i> Verified</span>
-                    {% endif %}
+                <div class="position-relative" style="height: 220px; overflow: hidden; background-color: #eee;">
+                    <span class="position-absolute top-0 start-0 m-2 badge bg-success"><i class="fas fa-check-circle me-1"></i> Verified</span>
                     
-                    {% if property.images.first %}
-                        <img src="{{ property.images.first.image.url }}" class="card-img-top" alt="{{ property.title }}">
+                    {% if property.image %}
+                        <img src="{{ property.image.url }}" class="w-100 h-100" alt="{{ property.title }}" style="object-fit: cover;">
                     {% else %}
-                        <div class="bg-secondary h-100 d-flex align-items-center justify-content-center text-white">No Image</div>
+                        <div class="h-100 d-flex align-items-center justify-content-center text-muted">
+                            <i class="fas fa-image fa-2x"></i>
+                        </div>
                     {% endif %}
                     
-                    <span class="price-tag">KES {{ property.rent_amount|floatformat:0 }}</span>
+                    <span class="position-absolute bottom-0 end-0 m-2 badge bg-dark fs-6">
+                        KES {{ property.price|floatformat:0 }}
+                    </span>
                 </div>
                 
                 <div class="card-body">
                     <div class="text-muted small mb-2">
-                        <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ property.location_area }}
+                        <i class="fas fa-map-marker-alt me-1 text-primary"></i> {{ property.location }}
                     </div>
                     <h5 class="card-title fw-bold text-truncate">{{ property.title }}</h5>
                     
                     <hr class="my-3 opacity-25">
                     
                     <div class="d-flex justify-content-between text-muted small mb-3">
-                        <span><i class="fas fa-bed me-1"></i> {{ property.get_property_type_display }}</span>
-                        <span><i class="fas fa-bolt me-1"></i> {% if property.has_token_electricity %}Token{% else %}Shared{% endif %}</span>
-                        <span><i class="fas fa-tint me-1"></i> {{ property.get_water_source_display }}</span>
+                        <span><i class="fas fa-bed me-1"></i> {{ property.bedrooms }} Bed</span>
+                        <span><i class="fas fa-bath me-1"></i> {{ property.bathrooms }} Bath</span>
                     </div>
 
                     <a href="{% url 'property_detail' property.slug %}" class="btn btn-outline-dark w-100 rounded-pill">View Details</a>
@@ -65,7 +65,11 @@
         </div>
         {% empty %}
         <div class="col-12 text-center py-5">
-            <h3 class="text-muted">No listings yet. Be the first landlord!</h3>
+            <div class="p-5 bg-light rounded">
+                <h3 class="text-muted">No listings yet.</h3>
+                <p>Be the first landlord to list a property!</p>
+                <a href="{% url 'add_property' %}" class="btn btn-primary mt-2">List Property</a>
+            </div>
         </div>
         {% endfor %}
     </div>
