@@ -181,3 +181,9 @@ STORAGES = {
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
+
+# Redirect to dashboard after successful login
+LOGIN_REDIRECT_URL = 'dashboard'
+
+# Redirect to home page after logout (optional but recommended)
+LOGOUT_REDIRECT_URL = 'home'
