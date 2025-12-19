@@ -22,7 +22,8 @@
             <h6 class="text-primary fw-bold text-uppercase ls-1">Discover</h6>
             <h2 class="fw-bold">Latest Properties</h2>
         </div>
-        <a href="#" class="text-decoration-none fw-bold text-dark">View All <i class="fas fa-arrow-right ms-1"></i></a>
+        {# FIXED: Changed href="#" to href="{% url 'home' %}" #}
+        <a href="{% url 'home' %}" class="text-decoration-none fw-bold text-dark">View All <i class="fas fa-arrow-right ms-1"></i></a>
     </div>
 
     <div class="row g-4">
