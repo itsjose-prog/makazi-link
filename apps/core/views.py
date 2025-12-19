@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.utils.text import slugify
 from .models import Property
 from .forms import PropertyForm
 
@@ -23,22 +24,38 @@ def dashboard(request):
     
     return render(request, 'core/dashboard.html', {'properties': my_properties})
 
-# In apps/core/views.py
 
 def add_property(request):
     if request.method == 'POST':
+        print("---------------------------------------")
+        print("📨 POST RECEIVED: Trying to save property...")
+        
         form = PropertyForm(request.POST, request.FILES)
+        
         if form.is_valid():
-            property = form.save(commit=False)
-            property.landlord = request.user
-            property.save()
-            return redirect('dashboard')
+            print("✅ FORM IS VALID. Preparing to save...")
+            try:
+                property = form.save(commit=False)
+                
+                # 1. Assign the Landlord (You)
+                property.landlord = request.user
+                
+                # 2. 🛡️ AUTO-GENERATE SLUG (Critical Fix)
+                # If title is "My House", slug becomes "my-house"
+                if not property.slug:
+                    property.slug = slugify(property.title)
+                
+                property.save()
+                print("🎉 SUCCESS! Property saved to database.")
+                return redirect('dashboard')
+                
+            except Exception as e:
+                print(f"❌ DATABASE CRASH: {e}")
+                # Use a specific error template or just print to terminal
         else:
-            # 🚨 THIS IS THE NEW DEBUG PART
-            print("--------------------------------------------------")
             print("❌ FORM VALIDATION FAILED!")
-            print(form.errors)  # This prints the exact error to your terminal
-            print("--------------------------------------------------")
+            print(form.errors) # <--- This will show in Render Logs
+            
     else:
         form = PropertyForm()
     
