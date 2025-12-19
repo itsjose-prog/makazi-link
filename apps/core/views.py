@@ -23,16 +23,22 @@ def dashboard(request):
     
     return render(request, 'core/dashboard.html', {'properties': my_properties})
 
-# --- 4. ADD PROPERTY VIEW ---
-@login_required
+# In apps/core/views.py
+
 def add_property(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
         if form.is_valid():
-            property_obj = form.save(commit=False)
-            property_obj.landlord = request.user
-            property_obj.save()
+            property = form.save(commit=False)
+            property.landlord = request.user
+            property.save()
             return redirect('dashboard')
+        else:
+            # 🚨 THIS IS THE NEW DEBUG PART
+            print("--------------------------------------------------")
+            print("❌ FORM VALIDATION FAILED!")
+            print(form.errors)  # This prints the exact error to your terminal
+            print("--------------------------------------------------")
     else:
         form = PropertyForm()
     
