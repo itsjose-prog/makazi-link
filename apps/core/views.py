@@ -1,47 +1,41 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
-from django.contrib import messages
 from .models import Property
 from .forms import PropertyForm
 
-# --- 1. HOMEPAGE VIEW ---
+# HOMEPAGE
 def home(request):
-    # This fetches all properties from the database (newest first)
-    properties = Property.objects.all().order_by('-created_at')
-    # It sends the list to your HTML
+    properties = Property.objects.all()
     return render(request, 'core/home.html', {'properties': properties})
 
-# --- 2. PROPERTY DETAIL VIEW ---
+# PROPERTY DETAIL
 def property_detail(request, slug):
-    property_obj = get_object_or_404(Property, slug=slug)
-    return render(request, 'core/property_detail.html', {'property': property_obj})
+    property = Property.objects.get(slug=slug)
+    return render(request, 'core/property_detail.html', {'property': property})
 
-# --- 3. DASHBOARD VIEW ---
+# DASHBOARD
 @login_required
 def dashboard(request):
-    # Fetch only the properties created by the current user
-    my_properties = Property.objects.filter(landlord=request.user).order_by('-created_at')
-    
-    return render(request, 'core/dashboard.html', {'properties': my_properties})
+    properties = Property.objects.filter(landlord=request.user)
+    return render(request, 'core/dashboard.html', {'properties': properties})
 
-
+# ADD PROPERTY (The problem area)
+@login_required
 def add_property(request):
     if request.method == 'POST':
+        print("📨 SUBMITTING FORM...") # Log 1
         form = PropertyForm(request.POST, request.FILES)
+        
         if form.is_valid():
+            print("✅ FORM VALID") # Log 2
             property = form.save(commit=False)
             property.landlord = request.user
-            
-            # Critical: Auto-generate slug if missing
-            if not property.slug:
-                property.slug = slugify(property.title)
-            
-            property.save()
-            messages.success(request, "Property listed successfully!")
+            property.save() # The model's save() method will handle the slug now
             return redirect('dashboard')
         else:
-            messages.error(request, "Please correct the errors below.")
+            print("❌ FORM INVALID") # Log 3
+            print(form.errors)       # Log 4 (The detailed error)
     else:
         form = PropertyForm()
     

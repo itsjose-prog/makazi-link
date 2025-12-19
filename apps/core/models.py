@@ -1,24 +1,24 @@
 from django.db import models
-from django.conf import settings  # <--- NEW: Import settings
+from django.conf import settings  # <--- CHANGED: Import settings instead of User
 from django.utils.text import slugify
 
 class Property(models.Model):
-    # FIXED: Use settings.AUTH_USER_MODEL instead of 'User'
-    landlord = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # CHANGED: Use settings.AUTH_USER_MODEL instead of User
+    # This makes Django happy because it's the "official" way to link to users
+    landlord = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='properties')
     
-    # Basic House Details
-    title = models.CharField(max_length=200)
-    slug = models.SlugField(unique=True, blank=True)
+    title = models.CharField(max_length=255)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    location = models.CharField(max_length=100)
+    location = models.CharField(max_length=255)
     
-    # Amenities
-    bedrooms = models.IntegerField(default=1)
-    bathrooms = models.IntegerField(default=1)
+    bedrooms = models.IntegerField()
+    bathrooms = models.IntegerField()
     
-    # Image
-    image = models.ImageField(upload_to='properties/')
+    # Image is mandatory, but we allow blank=True temporarily
+    image = models.ImageField(upload_to='property_images/', blank=True, null=True)
+    
+    slug = models.SlugField(unique=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
 

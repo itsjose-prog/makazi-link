@@ -4,14 +4,12 @@ from .models import Property
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
-        # Explicitly listed fields only
-        fields = ['title', 'image', 'description', 'price', 'location', 'bedrooms', 'bathrooms']
+        # ONLY these fields will be validated. 
+        # We EXCLUDE 'slug' and 'landlord' because the system handles them.
+        fields = ['title', 'price', 'location', 'bedrooms', 'bathrooms', 'description', 'image']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Add bootstrap classes to all fields
-        for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
-        
-        # 🛡️ SAFETY FIX: Make image optional for now to test if that's the blocker
-        self.fields['image'].required = False
+        # Style the fields with Bootstrap
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'

@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     # Local Apps (Makazi Link)
     'apps.core',
     'apps.accounts',
-    'apps.properties',
+    #'apps.properties', duplicated
     'apps.payments',
 ]
 
