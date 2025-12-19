@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
+from django.http import HttpResponse
 from django.utils.text import slugify
 from .models import Property
 from .forms import PropertyForm
@@ -44,10 +46,10 @@ def add_property(request):
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
-# ... your existing code is above ...
 
 def create_admin_user(request):
-    # This code runs ON THE SERVER, so it has access to the database!
+    User = get_user_model()  # <--- This gets 'accounts.User' automatically
+    
     if not User.objects.filter(username='admin').exists():
         User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
         return HttpResponse("✅ SUCCESS: Superuser 'admin' created! <br>Log in with: <b>admin</b> / <b>admin123</b>")
