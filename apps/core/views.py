@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.utils.text import slugify
+from django.contrib import messages
 from .models import Property
 from .forms import PropertyForm
 
@@ -27,35 +28,29 @@ def dashboard(request):
 
 def add_property(request):
     if request.method == 'POST':
-        print("---------------------------------------")
-        print("📨 POST RECEIVED: Trying to save property...")
-        
         form = PropertyForm(request.POST, request.FILES)
         
         if form.is_valid():
-            print("✅ FORM IS VALID. Preparing to save...")
             try:
                 property = form.save(commit=False)
-                
-                # 1. Assign the Landlord (You)
                 property.landlord = request.user
                 
-                # 2. 🛡️ AUTO-GENERATE SLUG (Critical Fix)
-                # If title is "My House", slug becomes "my-house"
+                # Auto-generate slug if missing
                 if not property.slug:
                     property.slug = slugify(property.title)
                 
                 property.save()
-                print("🎉 SUCCESS! Property saved to database.")
+                messages.success(request, "Property Added Successfully!")
                 return redirect('dashboard')
                 
             except Exception as e:
-                print(f"❌ DATABASE CRASH: {e}")
-                # Use a specific error template or just print to terminal
+                # 🚨 VISUAL DEBUG: This puts the database error directly on the screen
+                error_msg = f"Database Error: {str(e)}"
+                print(error_msg)  # Print to logs
+                form.add_error(None, error_msg)  # Show in Red Box
         else:
-            print("❌ FORM VALIDATION FAILED!")
-            print(form.errors) # <--- This will show in Render Logs
-            
+            # If form validation fails, print why
+            print("Form Errors:", form.errors)
     else:
         form = PropertyForm()
     
