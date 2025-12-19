@@ -29,28 +29,19 @@ def dashboard(request):
 def add_property(request):
     if request.method == 'POST':
         form = PropertyForm(request.POST, request.FILES)
-        
         if form.is_valid():
-            try:
-                property = form.save(commit=False)
-                property.landlord = request.user
-                
-                # Auto-generate slug if missing
-                if not property.slug:
-                    property.slug = slugify(property.title)
-                
-                property.save()
-                messages.success(request, "Property Added Successfully!")
-                return redirect('dashboard')
-                
-            except Exception as e:
-                # 🚨 VISUAL DEBUG: This puts the database error directly on the screen
-                error_msg = f"Database Error: {str(e)}"
-                print(error_msg)  # Print to logs
-                form.add_error(None, error_msg)  # Show in Red Box
+            property = form.save(commit=False)
+            property.landlord = request.user
+            
+            # Critical: Auto-generate slug if missing
+            if not property.slug:
+                property.slug = slugify(property.title)
+            
+            property.save()
+            messages.success(request, "Property listed successfully!")
+            return redirect('dashboard')
         else:
-            # If form validation fails, print why
-            print("Form Errors:", form.errors)
+            messages.error(request, "Please correct the errors below.")
     else:
         form = PropertyForm()
     
