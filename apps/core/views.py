@@ -40,3 +40,16 @@ def add_property(request):
         form = PropertyForm()
     
     return render(request, 'core/add_property.html', {'form': form})
+
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+# ... your existing code is above ...
+
+def create_admin_user(request):
+    # This code runs ON THE SERVER, so it has access to the database!
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+        return HttpResponse("✅ SUCCESS: Superuser 'admin' created! <br>Log in with: <b>admin</b> / <b>admin123</b>")
+    else:
+        return HttpResponse("⚠️ Superuser 'admin' already exists. You can go log in.")

