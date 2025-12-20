@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.utils.text import slugify
 from .models import Property
 from .forms import PropertyForm
+from apps.payments.models import Payment
 
 # HOMEPAGE
 def home(request):
@@ -19,8 +20,14 @@ def property_detail(request, slug):
 # DASHBOARD
 @login_required
 def dashboard(request):
-    properties = Property.objects.filter(landlord=request.user)
-    return render(request, 'core/dashboard.html', {'properties': properties})
+    # 1. Get all payments made by this specific user
+    # order_by('-created_at') means "newest first"
+    user_payments = Payment.objects.filter(payer=request.user).order_by('-created_at')
+    
+    context = {
+        'payments': user_payments
+    }
+    return render(request, 'core/dashboard.html', context)
 
 # ADD PROPERTY (The problem area)
 @login_required

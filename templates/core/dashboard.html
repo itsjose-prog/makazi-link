@@ -3,95 +3,72 @@
 {% block title %}My Dashboard - Makazi Link{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row mb-4 align-items-center">
-        <div class="col">
-            <h2 class="fw-bold">Welcome, {{ user.username }}! 👋</h2>
-            <p class="text-muted">Manage your listings and view your leads.</p>
-        </div>
-        <div class="col-auto">
-            <a href="{% url 'add_property' %}" class="btn btn-primary rounded-pill shadow-sm">
-                <i class="fas fa-plus me-2"></i> Add New Property
-            </a>
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2 class="fw-bold">Welcome, {{ user.username|title }}! 👋</h2>
+            <p class="text-muted">Manage your bookings and viewing requests here.</p>
         </div>
     </div>
 
     <div class="row">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white py-3 border-bottom-0">
-                    <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-home me-2"></i>My Listings</h5>
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-history me-2 text-primary"></i>Payment History</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-hover mb-0 align-middle">
-                            <thead class="bg-light text-secondary small text-uppercase">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
                                 <tr>
-                                    <th class="ps-4 border-0">Title</th>
-                                    <th class="border-0">Price</th>
-                                    <th class="border-0">Status</th>
-                                    <th class="border-0 text-center">Actions</th>
+                                    <th class="ps-4">Property</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Transaction ID</th>
+                                    <th>Status</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for property in properties %}
+                                {% for payment in payments %}
                                 <tr>
-                                    <td class="ps-4 fw-bold">
+                                    <td class="ps-4">
                                         <div class="d-flex align-items-center">
-                                            {% if property.image %}
-                                                <img src="{{ property.image.url }}" class="rounded me-3" style="width: 40px; height: 40px; object-fit: cover;">
-                                            {% else %}
-                                                <div class="rounded me-3 bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
-                                                    <i class="fas fa-home"></i>
-                                                </div>
-                                            {% endif %}
-                                            <a href="{% url 'property_detail' property.slug %}" class="text-decoration-none text-dark">
-                                                {{ property.title|truncatechars:30 }}
-                                            </a>
+                                            <div class="bg-light rounded p-2 me-3 text-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-home text-muted"></i>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold d-block">{{ payment.property.title }}</span>
+                                                <small class="text-muted">{{ payment.property.location }}</small>
+                                            </div>
                                         </div>
                                     </td>
-
-                                    <td>KES {{ property.price|floatformat:0 }}</td>
-
+                                    <td>{{ payment.created_at|date:"M d, Y" }} <br> <small class="text-muted">{{ payment.created_at|date:"H:i" }}</small></td>
+                                    <td class="fw-bold">KES {{ payment.amount|floatformat:0 }}</td>
+                                    <td><small class="font-monospace text-muted">{{ payment.transaction_id }}</small></td>
                                     <td>
-                                        <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
-                                            Active
-                                        </span>
-                                    </td>
-
-                                    <td class="text-center">
-                                        <a href="{% url 'property_detail' property.slug %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                            View
-                                        </a>
+                                        {% if payment.status == 'COMPLETED' %}
+                                            <span class="badge bg-success rounded-pill px-3">PAID</span>
+                                        {% elif payment.status == 'PENDING' %}
+                                            <span class="badge bg-warning text-dark rounded-pill px-3">PENDING</span>
+                                        {% else %}
+                                            <span class="badge bg-danger rounded-pill px-3">FAILED</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="4" class="text-center py-5">
+                                    <td colspan="5" class="text-center py-5">
                                         <div class="text-muted">
-                                            <i class="fas fa-folder-open fa-2x mb-3 opacity-50"></i>
-                                            <p>You haven't listed any houses yet.</p>
+                                            <i class="fas fa-receipt fa-3x mb-3 opacity-50"></i>
+                                            <p>No bookings yet.</p>
+                                            <a href="{% url 'home' %}" class="btn btn-outline-primary btn-sm">Find a House</a>
                                         </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-dark text-white py-3">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-bolt me-2 text-warning"></i>Recent Leads</h5>
-                </div>
-                <div class="card-body">
-                    <div class="text-center py-4 text-muted">
-                        <i class="fas fa-ghost fa-2x mb-3 opacity-50"></i>
-                        <p class="mb-0">No paid viewings yet.</p>
-                        <small>Leads will appear here when students pay to view contacts.</small>
                     </div>
                 </div>
             </div>
