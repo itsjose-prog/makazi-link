@@ -10,6 +10,7 @@ import base64
 from datetime import datetime
 from apps.core.models import Property
 from .models import Payment
+import time
 
 # ==========================================
 # 1. THE MPESA GATE CLASS (Moved Inside)
@@ -95,7 +96,8 @@ def initiate_payment(request, property_id):
             amount=property.price,
             phone_number=phone_number,
             status='PENDING',
-            transaction_id=f"TEMP-{request.user.id}-{property.id}" 
+           # ✅ FIX: Add time so it is always unique (e.g., TEMP-2-1-17039283)
+            transaction_id=f"TEMP-{request.user.id}-{property.id}-{int(time.time())}" 
         )
 
         # Call M-Pesa (Using the class above)
