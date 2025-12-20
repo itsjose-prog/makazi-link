@@ -9,4 +9,5 @@ urlpatterns = [
     
     path('add/', views.add_property, name='add_property'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('register/', views.register, name='register'),
 ]

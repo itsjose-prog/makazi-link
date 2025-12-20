@@ -1,3 +1,5 @@
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
@@ -111,3 +113,19 @@ def create_admin_user(request):
         return HttpResponse("✅ SUCCESS: Superuser 'admin' created! <br>Log in with: <b>admin</b> / <b>admin123</b>")
     else:
         return HttpResponse("⚠️ Superuser 'admin' already exists. You can go log in.")
+    
+    # ==========================
+# 6. REGISTER VIEW
+# ==========================
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Log the user in immediately after signing up
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'registration/register.html', {'form': form})

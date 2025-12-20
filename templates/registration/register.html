@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign Up - Makazi Link{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="fw-bold mb-0">Create Account</h3>
+                    <p class="mb-0 opacity-75">Join Makazi Link today</p>
+                </div>
+                
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small mt-1">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+
+                        <button type="submit" class="btn btn-success w-100 btn-lg rounded-pill shadow-sm mt-3">
+                            Sign Up
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3">
+                    <p class="mb-0">Already have an account? <a href="{% url 'login' %}" class="fw-bold text-success">Log In</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // This adds Bootstrap classes to the default Django inputs
+    var inputs = document.querySelectorAll('input');
+    inputs.forEach(function(input) {
+        input.classList.add('form-control');
+        input.classList.add('mb-2');
+    });
+</script>
+{% endblock %}
