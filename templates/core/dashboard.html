@@ -27,9 +27,8 @@
                 </div>
                 
                 <div class="card-body">
-                    {% if my_properties %}
-                        <div class="row g-3">
-                            {% for property in my_properties %}
+                    <div class="row g-3">
+                        {% for property in my_properties %}
                             <div class="col-md-6 col-lg-4">
                                 <div class="card h-100 border bg-light">
                                     <div class="card-body">
@@ -37,7 +36,7 @@
                                             {% if property.is_approved %}
                                                 <span class="badge bg-success rounded-pill"><i class="fas fa-check-circle me-1"></i> Live</span>
                                             {% else %}
-                                                <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock me-1"></i> Pending Approval</span>
+                                                <span class="badge bg-warning text-dark rounded-pill"><i class="fas fa-clock me-1"></i> Pending</span>
                                             {% endif %}
                                             
                                             <small class="text-muted">{{ property.created_at|date:"M d" }}</small>
@@ -55,15 +54,14 @@
                                     </div>
                                 </div>
                             </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="fas fa-home fa-3x text-muted opacity-25 mb-3"></i>
-                            <p class="text-muted">You haven't listed any properties yet.</p>
-                            <a href="{% url 'add_property' %}" class="btn btn-outline-success btn-sm">Post a House</a>
-                        </div>
-                    {% endif %}
+                        {% empty %}
+                            <div class="col-12 text-center py-4">
+                                <i class="fas fa-home fa-3x text-muted opacity-25 mb-3"></i>
+                                <p class="text-muted">You haven't listed any properties yet.</p>
+                                <a href="{% url 'add_property' %}" class="btn btn-outline-success btn-sm">Post a House</a>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -96,12 +94,47 @@
                                                 <i class="fas fa-home text-muted"></i>
                                             </div>
                                             <div>
-                                                <a href="{% url 'property_detail' payment.property.id %}" class="fw-bold text-dark text-decoration-none">
-                                                    {{ payment.property.title }}
-                                                </a>
-                                                <small class="text-muted d-block">{{ payment.property.location }}</small>
+                                                {% if payment.property %}
+                                                    <a href="{% url 'property_detail' payment.property.id %}" class="fw-bold text-dark text-decoration-none">
+                                                        {{ payment.property.title }}
+                                                    </a>
+                                                    <small class="text-muted d-block">{{ payment.property.location }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">Property Unavailable</span>
+                                                {% endif %}
                                             </div>
                                         </div>
                                     </td>
                                     <td class="small text-muted">{{ payment.created_at|date:"M d, Y" }}</td>
-                                    <td class="fw-bold text-dark">KES {{ payment.amount|floatformat
+                                    <td class="fw-bold text-dark">KES {{ payment.amount|floatformat:0 }}</td>
+                                    <td class="small font-monospace text-muted">{{ payment.transaction_id }}</td>
+                                    <td>
+                                        {% if payment.status == 'COMPLETED' %}
+                                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">PAID</span>
+                                        {% elif payment.status == 'PENDING' %}
+                                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">PENDING</span>
+                                        {% else %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">FAILED</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="text-muted">
+                                            <p class="mb-1">No payments made yet.</p>
+                                            <a href="{% url 'home' %}" class="small text-primary text-decoration-none">Browse Homes</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
