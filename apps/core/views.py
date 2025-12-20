@@ -9,8 +9,38 @@ from apps.payments.models import Payment
 
 # HOMEPAGE
 def home(request):
-    properties = Property.objects.all()
-    return render(request, 'core/home.html', {'properties': properties})
+    # Start by getting ALL properties
+    properties = Property.objects.all().order_by('-created_at')
+
+    # --- DEBUGGING PRINTS ---
+    print("--- SEARCH DEBUG START ---")
+    print(f"Incoming GET params: {request.GET}")
+
+    # 1. Check if user sent a LOCATION search
+    location_query = request.GET.get('location')
+    if location_query:
+        location_query = location_query.strip() # Remove spaces (e.g. "Voi " becomes "Voi")
+        if location_query: # Check again in case it was just spaces
+            print(f"Filtering by Location: {location_query}")
+            properties = properties.filter(location__icontains=location_query)
+
+    # 2. Check if user sent a PRICE filter
+    price_query = request.GET.get('max_price')
+    if price_query:
+        price_query = price_query.strip()
+        if price_query.isdigit(): # Only filter if it is a valid number
+            print(f"Filtering by Max Price: {price_query}")
+            properties = properties.filter(price__lte=int(price_query))
+        else:
+            print("Skipping price filter (invalid number)")
+
+    print(f"Found {properties.count()} properties after filtering.")
+    print("--- SEARCH DEBUG END ---")
+
+    context = {
+        'properties': properties
+    }
+    return render(request, 'core/home.html', context)
 
 # PROPERTY DETAIL
 def property_detail(request, slug):
