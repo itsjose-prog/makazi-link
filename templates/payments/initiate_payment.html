@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Pay for {{ property.title }} - Makazi Link{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0"><i class="fas fa-mobile-alt me-2"></i>Pay with M-Pesa</h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <h5 class="text-muted">Booking: {{ property.title }}</h5>
+                        <h2 class="fw-bold text-success">KES {{ property.price|floatformat:0 }}</h2>
+                        <span class="badge bg-light text-dark border">Safe & Secure Payment</span>
+                    </div>
+
+                    <hr class="opacity-25 my-4">
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="phone" class="form-label fw-bold">M-Pesa Phone Number</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text bg-light border-end-0">
+                                    <i class="fas fa-phone-alt text-success"></i>
+                                </span>
+                                <input type="text" class="form-control border-start-0 ps-0" 
+                                       id="phone" name="phone_number" 
+                                       placeholder="e.g., 0712345678" required>
+                            </div>
+                            <div class="form-text">
+                                Enter the number that will receive the M-Pesa prompt.
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 btn-lg rounded-pill shadow-sm hover-effect">
+                            <span class="fw-bold">Pay Now</span> <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-center py-3">
+                    <small class="text-muted">
+                        <i class="fas fa-lock me-1"></i> Secured by Daraja API
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
