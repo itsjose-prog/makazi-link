@@ -2,15 +2,15 @@ import requests
 import json
 import base64
 from datetime import datetime
-from django.conf import settings
-from decouple import config
+from django.conf import settings # <--- Using standard Django settings (Safer)
 
 class MpesaGate:
     def __init__(self):
-        self.consumer_key = config('MPESA_CONSUMER_KEY')
-        self.consumer_secret = config('MPESA_CONSUMER_SECRET')
-        self.shortcode = config('MPESA_SHORTCODE')
-        self.passkey = config('MPESA_PASSKEY')
+        # We fetch these from your settings.py (which loads from .env)
+        self.consumer_key = settings.MPESA_CONSUMER_KEY
+        self.consumer_secret = settings.MPESA_CONSUMER_SECRET
+        self.shortcode = settings.MPESA_SHORTCODE
+        self.passkey = settings.MPESA_PASSKEY
         self.base_url = "https://sandbox.safaricom.co.ke"
 
     def get_access_token(self):
@@ -45,18 +45,18 @@ class MpesaGate:
         password_str = f"{self.shortcode}{self.passkey}{timestamp}"
         password = base64.b64encode(password_str.encode()).decode()
 
-        # 3. The Payload (Data sent to Safaricom)
+        # 3. The Payload
         payload = {
             "BusinessShortCode": self.shortcode,
             "Password": password,
             "Timestamp": timestamp,
             "TransactionType": "CustomerPayBillOnline",
-            "Amount": int(amount), # M-Pesa doesn't like decimals
+            "Amount": int(amount), 
             "PartyA": phone_number,
             "PartyB": self.shortcode,
             "PhoneNumber": phone_number,
-            "CallBackURL": config('MPESA_CALLBACK_URL'),
-            "AccountReference": reference, # e.g., "House 4"
+            "CallBackURL": settings.MPESA_CALLBACK_URL, # <--- Using settings
+            "AccountReference": reference, 
             "TransactionDesc": "Viewing Fee"
         }
 
