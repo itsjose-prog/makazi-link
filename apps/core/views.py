@@ -1,51 +1,45 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
-from django.utils.text import slugify
 from .models import Property
 from .forms import PropertyForm
 from apps.payments.models import Payment
 
-# HOMEPAGE
+# ==========================
+# 1. HOME & SEARCH VIEW
+# ==========================
 def home(request):
-    # Start by getting ALL properties
+    # Start by getting ALL properties (newest first)
     properties = Property.objects.all().order_by('-created_at')
 
-    # --- DEBUGGING PRINTS ---
-    print("--- SEARCH DEBUG START ---")
-    print(f"Incoming GET params: {request.GET}")
-
-    # 1. Check if user sent a LOCATION search
+    # --- SEARCH LOGIC ---
+    # 1. Location Filter
     location_query = request.GET.get('location')
     if location_query:
-        location_query = location_query.strip() # Remove spaces (e.g. "Voi " becomes "Voi")
-        if location_query: # Check again in case it was just spaces
-            print(f"Filtering by Location: {location_query}")
+        location_query = location_query.strip()
+        if location_query:
+            print(f"🔎 Filtering by Location: {location_query}")
             properties = properties.filter(location__icontains=location_query)
 
-    # 2. Check if user sent a PRICE filter
+    # 2. Price Filter
     price_query = request.GET.get('max_price')
     if price_query:
         price_query = price_query.strip()
-        if price_query.isdigit(): # Only filter if it is a valid number
-            print(f"Filtering by Max Price: {price_query}")
+        if price_query.isdigit():
+            print(f"💰 Filtering by Max Price: {price_query}")
             properties = properties.filter(price__lte=int(price_query))
-        else:
-            print("Skipping price filter (invalid number)")
-
-    print(f"Found {properties.count()} properties after filtering.")
-    print("--- SEARCH DEBUG END ---")
 
     context = {
         'properties': properties
     }
     return render(request, 'core/home.html', context)
 
-# PROPERTY DETAIL
+# ==========================
+# 2. PROPERTY DETAIL VIEW
+# ==========================
 def property_detail(request, id):
-    # Use get_object_or_404 so it returns a proper "Not Found" page 
-    # instead of crashing if the ID doesn't exist.
+    # Safely get the house or show 404
     property = get_object_or_404(Property, id=id)
     
     context = {
@@ -53,45 +47,52 @@ def property_detail(request, id):
     }
     return render(request, 'core/property_detail.html', context)
 
-# DASHBOARD
+# ==========================
+# 3. DASHBOARD VIEW
+# ==========================
 @login_required
 def dashboard(request):
-    # 1. Get all payments made by this specific user
-    # order_by('-created_at') means "newest first"
+    # 1. Get payments made BY this user (Student View)
     user_payments = Payment.objects.filter(payer=request.user).order_by('-created_at')
     
+    # 2. Get properties uploaded BY this user (Landlord View)
+    # (Useful if you want to show their listings on the dashboard later)
+    user_properties = Property.objects.filter(landlord=request.user).order_by('-created_at')
+    
     context = {
-        'payments': user_payments
+        'payments': user_payments,
+        'my_properties': user_properties
     }
     return render(request, 'core/dashboard.html', context)
 
-# ADD PROPERTY (The problem area)
+# ==========================
+# 4. ADD PROPERTY VIEW
+# ==========================
 @login_required
 def add_property(request):
     if request.method == 'POST':
-        print("📨 SUBMITTING FORM...") # Log 1
+        print("📨 Submitting Property Form...")
         form = PropertyForm(request.POST, request.FILES)
         
         if form.is_valid():
-            print("✅ FORM VALID") # Log 2
+            print("✅ Form Valid - Saving Property")
             property = form.save(commit=False)
             property.landlord = request.user
-            property.save() # The model's save() method will handle the slug now
+            property.save()
             return redirect('dashboard')
         else:
-            print("❌ FORM INVALID") # Log 3
-            print(form.errors)       # Log 4 (The detailed error)
+            print("❌ Form Invalid")
+            print(form.errors)
     else:
         form = PropertyForm()
     
     return render(request, 'core/add_property.html', {'form': form})
 
-from django.contrib.auth.models import User
-from django.http import HttpResponse
-
-
+# ==========================
+# 5. UTILITY: CREATE ADMIN
+# ==========================
 def create_admin_user(request):
-    User = get_user_model()  # <--- This gets 'accounts.User' automatically
+    User = get_user_model()
     
     if not User.objects.filter(username='admin').exists():
         User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
