@@ -43,9 +43,15 @@ def home(request):
     return render(request, 'core/home.html', context)
 
 # PROPERTY DETAIL
-def property_detail(request, slug):
-    property = Property.objects.get(slug=slug)
-    return render(request, 'core/property_detail.html', {'property': property})
+def property_detail(request, id):
+    # Use get_object_or_404 so it returns a proper "Not Found" page 
+    # instead of crashing if the ID doesn't exist.
+    property = get_object_or_404(Property, id=id)
+    
+    context = {
+        'property': property
+    }
+    return render(request, 'core/property_detail.html', context)
 
 # DASHBOARD
 @login_required
