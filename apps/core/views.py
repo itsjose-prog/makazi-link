@@ -14,7 +14,7 @@ from .forms import PropertyForm, CustomUserCreationForm
 # ==========================
 def home(request):
     # Start by getting ALL properties (newest first)
-    properties = Property.objects.all().order_by('-created_at')
+    properties = Property.objects.filter(is_approved=True).order_by('-created_at')
 
     # --- SEARCH LOGIC ---
     # 1. Location Filter
