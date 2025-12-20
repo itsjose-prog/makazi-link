@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from .models import Property
 from .forms import PropertyForm
 from apps.payments.models import Payment
+from .forms import PropertyForm, CustomUserCreationForm
 
 # ==========================
 # 1. HOME & SEARCH VIEW
@@ -127,5 +128,17 @@ def register(request):
             return redirect('home')
     else:
         form = UserCreationForm()
+    
+    return render(request, 'registration/register.html', {'form': form})
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST) # <--- Use the new form
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = CustomUserCreationForm() # <--- Use the new form
     
     return render(request, 'registration/register.html', {'form': form})
