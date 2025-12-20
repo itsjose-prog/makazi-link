@@ -50,8 +50,7 @@
         </div>
 
         <div class="col-md-4">
-            <div class="card shadow-lg border-0 sticky-top" style="top: 20px;">
-                <div class="card-body">
+            <div class="card shadow-lg border-0 sticky-top" style="top: 100px;"> <div class="card-body">
                     <h3 class="text-primary fw-bold">KES {{ property.price|floatformat:0 }}</h3>
                     <p class="text-muted">per month</p>
                     <hr>
@@ -59,17 +58,12 @@
                     <p><strong>Deposit:</strong> <span class="text-muted">Contact Landlord</span></p>
                     
                     <div class="card p-3 bg-light border-0">
-                        <h6 class="fw-bold mb-3">Book a Viewing (KES 100)</h6>
+                        <h6 class="fw-bold mb-2">Book a Viewing</h6>
+                        <p class="small text-muted mb-3">Secure your spot to view this property.</p>
                         
-                        <form action="#" method="POST"> 
-                            {% csrf_token %}
-                            <div class="mb-2">
-                                <input type="text" name="phone" class="form-control" placeholder="0712345678" required>
-                            </div>
-                            <button type="button" class="btn btn-success w-100" onclick="alert('Payment system coming soon!')">
-                                📲 Pay with M-Pesa
-                            </button>
-                        </form>
+                        <a href="{% url 'initiate_payment' property.id %}" class="btn btn-success w-100 shadow-sm py-2">
+                            <i class="fas fa-mobile-alt me-2"></i> <strong>Book with M-Pesa</strong>
+                        </a>
                     </div>
 
                     <div class="card shadow-sm border-0 mt-3">
