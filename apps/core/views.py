@@ -39,11 +39,23 @@ def home(request):
 # 2. PROPERTY DETAIL VIEW
 # ==========================
 def property_detail(request, id):
-    # Safely get the house or show 404
     property = get_object_or_404(Property, id=id)
     
+    # 🔒 DEFAULT: NOT PAID
+    has_paid = False
+    
+    # Check if user is logged in first
+    if request.user.is_authenticated:
+        # Check if they have a COMPLETED payment for THIS property
+        has_paid = Payment.objects.filter(
+            payer=request.user, 
+            property=property, 
+            status='COMPLETED'
+        ).exists()
+    
     context = {
-        'property': property
+        'property': property,
+        'has_paid': has_paid # <--- Pass this "Key" to the template
     }
     return render(request, 'core/property_detail.html', context)
 
