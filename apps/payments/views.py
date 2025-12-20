@@ -126,13 +126,47 @@ def initiate_payment(request, property_id):
 
 @csrf_exempt
 def mpesa_callback(request):
+    """
+    Safaricom calls this automatically when the user finishes entering their PIN.
+    """
     if request.method == 'POST':
         try:
+            # 1. Parse the incoming JSON from Safaricom
             data = json.loads(request.body)
-            print("M-Pesa Callback:", data)
-            # You can add logic here later to find the Payment by CheckoutRequestID and mark it PAID
-        except:
-            pass
+            print("📩 M-Pesa Callback Received:", data) # Check your Render logs to see this!
+
+            # 2. Extract the Data we need
+            stk_callback = data.get('Body', {}).get('stkCallback', {})
+            checkout_id = stk_callback.get('CheckoutRequestID')
+            result_code = stk_callback.get('ResultCode') # 0 = Success, others = Fail
+            result_desc = stk_callback.get('ResultDesc')
+
+            # 3. Find the matching Payment in our Database
+            # We use the 'checkout_id' because we saved it when we started the payment
+            payment = Payment.objects.filter(transaction_id=checkout_id).first()
+
+            if payment:
+                if result_code == 0:
+                    # ✅ SUCCESS! User paid.
+                    payment.status = 'COMPLETED'
+                    print(f"✅ Payment {checkout_id} marked as COMPLETED.")
+                    
+                    # OPTIONAL: You could mark the House as 'Taken' here if you wanted!
+                    # payment.property.is_available = False
+                    # payment.property.save()
+                else:
+                    # ❌ FAILED (User cancelled, insufficient funds, etc.)
+                    payment.status = 'FAILED'
+                    print(f"❌ Payment {checkout_id} failed: {result_desc}")
+
+                payment.save()
+            else:
+                print(f"⚠️ Warning: Callback received for unknown CheckoutID: {checkout_id}")
+
+        except Exception as e:
+            print(f"🔥 Error processing callback: {str(e)}")
+
+        # Always tell Safaricom "We got it" so they stop retrying
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Accepted"})
     
     return JsonResponse({"error": "Method not allowed"})
