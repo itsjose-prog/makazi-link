@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.humanize'  #standard django apps
+    'django.contrib.humanize',  #standard django apps
 
     # Local Apps (Makazi Link)
     'apps.core',
