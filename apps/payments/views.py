@@ -81,6 +81,9 @@ class MpesaGate:
 @login_required
 def initiate_payment(request, property_id):
     property = get_object_or_404(Property, id=property_id)
+
+    #Define the specific viewing fee
+    VIEWING_FEE = 100
     
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
@@ -93,10 +96,11 @@ def initiate_payment(request, property_id):
         payment = Payment.objects.create(
             payer=request.user,
             property=property,
+            amount=VIEWING_FEE, #Use the Fee, NOT property.price
             amount=property.price,
             phone_number=phone_number,
             status='PENDING',
-           # ✅ FIX: Add time so it is always unique (e.g., TEMP-2-1-17039283)
+           #Add time so it is always unique (e.g., TEMP-2-1-17039283)
             transaction_id=f"TEMP-{request.user.id}-{property.id}-{int(time.time())}" 
         )
 
@@ -104,6 +108,8 @@ def initiate_payment(request, property_id):
         gate = MpesaGate()
         amount = int(property.price) 
         reference = f"House {property.id}"
+        #send 100 Bob to M-Pesa, not the Rent amount
+        response = gate.trigger_stk_push(phone_number, VIEWING_FEE, reference) 
         
         response = gate.trigger_stk_push(phone_number, amount, reference)
 
@@ -122,7 +128,8 @@ def initiate_payment(request, property_id):
             payment.status = 'FAILED'
             payment.save()
             
-    return render(request, 'payments/initiate_payment.html', {'property': property})
+    # Pass the fee to the template so the user sees "100"
+    return render(request, 'payments/initiate_payment.html', {'property': property, 'fee': VIEWING_FEE})
 
 @csrf_exempt
 def mpesa_callback(request):
