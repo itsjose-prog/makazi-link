@@ -4,17 +4,26 @@
 {% block title %}Home - Makazi Link{% endblock %}
 
 {% block content %}
-<header class="hero-section text-center py-5 bg-primary text-white mb-5 position-relative">
-    <div class="container position-relative z-index-1 py-4">
-        <h1 class="display-4 fw-bold mb-3">Find Your Sanctuary in Mazeras</h1>
-        <p class="lead mb-4 opacity-75">Verified homes. Transparent pricing. Instant bookings.</p>
+<header class="hero-section text-center py-5 mb-5 position-relative" 
+        style="background-image: url('https://images.unsplash.com/photo-1564013799919-ab600027ffc6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'); 
+               background-size: cover; 
+               background-position: center; 
+               min-height: 500px; 
+               display: flex; 
+               align-items: center;">
+    
+    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark" style="opacity: 0.6;"></div>
+
+    <div class="container position-relative z-index-1">
+        <h1 class="display-3 fw-bold text-white mb-3">Find Your Sanctuary</h1>
+        <p class="lead text-white mb-5 opacity-75">Verified homes. Transparent pricing. Instant bookings in Mazeras & Voi.</p>
         
-        <form action="{% url 'home' %}" method="GET" class="bg-white p-3 rounded-3 shadow-lg mx-auto text-dark" style="max-width: 800px;">
+        <form action="{% url 'home' %}" method="GET" class="bg-white p-4 rounded-3 shadow-lg mx-auto text-dark" style="max-width: 850px;">
             <div class="row g-2 align-items-center">
                 <div class="col-md-5">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-map-marker-alt text-primary"></i></span>
-                        <input type="text" name="location" class="form-control border-start-0 bg-light" 
+                        <input type="text" name="location" class="form-control border-start-0 bg-light py-3" 
                                placeholder="Location (e.g. Voi, Mazeras)" 
                                value="{{ request.GET.location }}">
                     </div>
@@ -23,14 +32,14 @@
                 <div class="col-md-4">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-coins text-primary"></i></span>
-                        <input type="number" name="max_price" class="form-control border-start-0 bg-light" 
+                        <input type="number" name="max_price" class="form-control border-start-0 bg-light py-3" 
                                placeholder="Max Price (KES)" 
                                value="{{ request.GET.max_price }}">
                     </div>
                 </div>
 
                 <div class="col-md-3">
-                    <button type="submit" class="btn btn-success w-100 fw-bold">
+                    <button type="submit" class="btn btn-success w-100 fw-bold py-3 hover-lift">
                         <i class="fas fa-search me-2"></i> Search
                     </button>
                 </div>
