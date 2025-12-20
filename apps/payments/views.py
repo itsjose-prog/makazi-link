@@ -7,13 +7,13 @@ from django.conf import settings
 import requests
 import json
 import base64
+import time
 from datetime import datetime
 from apps.core.models import Property
 from .models import Payment
-import time
 
 # ==========================================
-# 1. THE MPESA GATE CLASS (Moved Inside)
+# 1. THE MPESA GATE CLASS
 # ==========================================
 class MpesaGate:
     def __init__(self):
@@ -27,7 +27,7 @@ class MpesaGate:
         api_url = f"{self.base_url}/oauth/v1/generate?grant_type=client_credentials"
         try:
             response = requests.get(api_url, auth=(self.consumer_key, self.consumer_secret))
-            response.raise_for_status() # Raise error for bad status codes
+            response.raise_for_status()
             return response.json().get('access_token')
         except Exception as e:
             print(f"M-Pesa Auth Error: {str(e)}")
@@ -38,7 +38,6 @@ class MpesaGate:
         if not token:
             return {"error": "Authentication Failed", "errorMessage": "Could not get token"}
 
-        # Format Phone Number
         if phone_number.startswith('0'):
             phone_number = '254' + phone_number[1:]
         elif phone_number.startswith('+254'):
@@ -81,9 +80,9 @@ class MpesaGate:
 @login_required
 def initiate_payment(request, property_id):
     property = get_object_or_404(Property, id=property_id)
-
-    #Define the specific viewing fee
-    VIEWING_FEE = 100
+    
+    # Define the viewing fee
+    VIEWING_FEE = 100  
     
     if request.method == 'POST':
         phone_number = request.POST.get('phone_number')
@@ -96,27 +95,21 @@ def initiate_payment(request, property_id):
         payment = Payment.objects.create(
             payer=request.user,
             property=property,
-            amount=VIEWING_FEE, #Use the Fee, NOT property.price
-            amount=property.price,
+            amount=VIEWING_FEE,  # Use the fee, not the property price
             phone_number=phone_number,
             status='PENDING',
-           #Add time so it is always unique (e.g., TEMP-2-1-17039283)
             transaction_id=f"TEMP-{request.user.id}-{property.id}-{int(time.time())}" 
         )
 
-        # Call M-Pesa (Using the class above)
+        # Call M-Pesa
         gate = MpesaGate()
-        amount = int(property.price) 
         reference = f"House {property.id}"
-        #send 100 Bob to M-Pesa, not the Rent amount
-        response = gate.trigger_stk_push(phone_number, VIEWING_FEE, reference) 
         
-        response = gate.trigger_stk_push(phone_number, amount, reference)
+        # Trigger STK Push with the viewing fee (100)
+        response = gate.trigger_stk_push(phone_number, VIEWING_FEE, reference)
 
-        # Check response
         if response.get('ResponseCode') == '0':
-            messages.success(request, f"STK Push sent to {phone_number}. Check your phone!")
-            # Save the CheckoutRequestID if available, useful for tracking
+            messages.success(request, f"STK Push sent! Please pay KES {VIEWING_FEE} on your phone.")
             checkout_id = response.get('CheckoutRequestID')
             if checkout_id:
                 payment.transaction_id = checkout_id
@@ -128,52 +121,33 @@ def initiate_payment(request, property_id):
             payment.status = 'FAILED'
             payment.save()
             
-    # Pass the fee to the template so the user sees "100"
     return render(request, 'payments/initiate_payment.html', {'property': property, 'fee': VIEWING_FEE})
 
 @csrf_exempt
 def mpesa_callback(request):
-    """
-    Safaricom calls this automatically when the user finishes entering their PIN.
-    """
     if request.method == 'POST':
         try:
-            # 1. Parse the incoming JSON from Safaricom
             data = json.loads(request.body)
-            print("📩 M-Pesa Callback Received:", data) # Check your Render logs to see this!
+            print("📩 M-Pesa Callback Received:", data)
 
-            # 2. Extract the Data we need
             stk_callback = data.get('Body', {}).get('stkCallback', {})
             checkout_id = stk_callback.get('CheckoutRequestID')
-            result_code = stk_callback.get('ResultCode') # 0 = Success, others = Fail
-            result_desc = stk_callback.get('ResultDesc')
+            result_code = stk_callback.get('ResultCode')
 
-            # 3. Find the matching Payment in our Database
-            # We use the 'checkout_id' because we saved it when we started the payment
             payment = Payment.objects.filter(transaction_id=checkout_id).first()
 
             if payment:
                 if result_code == 0:
-                    # ✅ SUCCESS! User paid.
                     payment.status = 'COMPLETED'
                     print(f"✅ Payment {checkout_id} marked as COMPLETED.")
-                    
-                    # OPTIONAL: You could mark the House as 'Taken' here if you wanted!
-                    # payment.property.is_available = False
-                    # payment.property.save()
                 else:
-                    # ❌ FAILED (User cancelled, insufficient funds, etc.)
                     payment.status = 'FAILED'
-                    print(f"❌ Payment {checkout_id} failed: {result_desc}")
-
+                    print(f"❌ Payment {checkout_id} failed.")
                 payment.save()
-            else:
-                print(f"⚠️ Warning: Callback received for unknown CheckoutID: {checkout_id}")
 
         except Exception as e:
             print(f"🔥 Error processing callback: {str(e)}")
 
-        # Always tell Safaricom "We got it" so they stop retrying
         return JsonResponse({"ResultCode": 0, "ResultDesc": "Accepted"})
     
     return JsonResponse({"error": "Method not allowed"})
