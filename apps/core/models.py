@@ -27,5 +27,27 @@ class Property(models.Model):
             self.slug = slugify(self.title)
         super().save(*args, **kwargs)
 
+        # ... inside class Property ...
+
+    def get_whatsapp_number(self):
+        """
+        Converts local phone numbers (07xx) to international format (2547xx)
+        for WhatsApp API links.
+        """
+        phone = str(self.contact_phone).strip()
+        
+        # Remove any spaces or dashes
+        phone = phone.replace(" ", "").replace("-", "")
+        
+        # If it starts with '0', replace with '254'
+        if phone.startswith("0"):
+            return "254" + phone[1:]
+        
+        # If it starts with '+', remove it
+        if phone.startswith("+"):
+            return phone[1:]
+            
+        return phone
+
     def __str__(self):
         return self.title
