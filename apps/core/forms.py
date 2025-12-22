@@ -12,9 +12,8 @@ User = get_user_model()
 class PropertyForm(forms.ModelForm):
     class Meta:
         model = Property
-        # ONLY these fields will be validated. 
-        # We EXCLUDE 'slug' and 'landlord' because the system handles them.
-        fields = ['title', 'contact_phone' 'price', 'location', 'bedrooms', 'bathrooms', 'description', 'image']
+        # ✅ FIXED: Added the missing comma after 'contact_phone'
+        fields = ['title', 'contact_phone', 'price', 'location', 'bedrooms', 'bathrooms', 'description', 'image']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,8 +27,8 @@ class PropertyForm(forms.ModelForm):
 # ==========================
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
-        model = User  # <--- This fixes the "Manager isn't available" error
-        fields = ('username', 'email') # Add other fields here if needed
+        model = User
+        fields = ('username', 'email')
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

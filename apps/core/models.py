@@ -1,34 +1,40 @@
 from django.db import models
-from django.conf import settings  # <--- CHANGED: Import settings instead of User
+from django.conf import settings
 from django.utils.text import slugify
 
 class Property(models.Model):
-    # CHANGED: Use settings.AUTH_USER_MODEL instead of User
-    # This makes Django happy because it's the "official" way to link to users
+    # Link to the User model (Landlord)
     landlord = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='properties')
     
+    # Basic Details
     title = models.CharField(max_length=255)
-    is_approved = models.BooleanField(default=False)
+    slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=255)
+    
+    # House Specs
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
-    contact_phone = models.CharField(max_length=20, default='0712345678', help_text="Contact number for this property")
     
-    # Image is mandatory, but we allow blank=True temporarily
+    # Contact Info (The field that was causing issues)
+    contact_phone = models.CharField(
+        max_length=20, 
+        default='0712345678', 
+        help_text="Landlord phone number for inquiries"
+    )
+    
+    # Status & Media
+    is_approved = models.BooleanField(default=False)
     image = models.ImageField(upload_to='property_images/', blank=True, null=True)
-    
-    slug = models.SlugField(unique=True, blank=True)
-    
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        # Auto-generate slug from title if it doesn't exist
         if not self.slug:
             self.slug = slugify(self.title)
+            
         super().save(*args, **kwargs)
-
-        # ... inside class Property ...
 
     def get_whatsapp_number(self):
         """
