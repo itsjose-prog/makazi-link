@@ -14,7 +14,7 @@ class PropertyForm(forms.ModelForm):
         model = Property
         # ONLY these fields will be validated. 
         # We EXCLUDE 'slug' and 'landlord' because the system handles them.
-        fields = ['title', 'price', 'location', 'bedrooms', 'bathrooms', 'description', 'image']
+        fields = ['title', 'contact_phone' 'price', 'location', 'bedrooms', 'bathrooms', 'description', 'image']
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

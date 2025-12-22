@@ -14,6 +14,7 @@ class Property(models.Model):
     location = models.CharField(max_length=255)
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
+    contact_phone = models.CharField(max_length=20, default='0712345678', help_text="Contact number for this property")
     
     # Image is mandatory, but we allow blank=True temporarily
     image = models.ImageField(upload_to='property_images/', blank=True, null=True)
