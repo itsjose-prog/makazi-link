@@ -28,7 +28,15 @@ class PropertyForm(forms.ModelForm):
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('username', 'email')
+        # ✅ UPDATE: Added 'phone_number' and 'user_type' to the list
+        fields = ('username', 'email', 'phone_number', 'user_type')
+        
+        # ✅ UPDATE: Added labels to make the form friendly
+        labels = {
+            'user_type': 'I want to join as:',
+            'phone_number': 'Phone Number (M-Pesa)',
+            'email': 'Email Address'
+        }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

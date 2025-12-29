@@ -6,11 +6,27 @@ from django.db import models
 class User(AbstractUser):
     """
     Custom User Model for Makazi Link.
-    Inherits from AbstractUser to keep Django's password hashing and permissions,
-    but adds our specific business fields.
+    Inherits from AbstractUser to keep Django's password hashing and permissions.
     """
+
+    # --- NEW FEATURE: Role Choices (For the Dropdown) ---
+    TENANT = 'tenant'
+    LANDLORD = 'landlord'
     
-    # We add these new fields to the standard Django user
+    ROLE_CHOICES = [
+        (TENANT, 'Tenant'),
+        (LANDLORD, 'Landlord'),
+    ]
+
+    user_type = models.CharField(
+        max_length=10, 
+        choices=ROLE_CHOICES, 
+        default=TENANT,
+        help_text="Select account type: Tenant or Landlord"
+    )
+    # ----------------------------------------------------
+    
+    # Existing Fields (Kept exactly as they were)
     is_landlord = models.BooleanField(
         default=False, 
         help_text="Designates whether this user can list properties."
@@ -27,10 +43,19 @@ class User(AbstractUser):
         help_text="Required for M-Pesa transactions"
     )
 
-    # We enforce email uniqueness (Django default allows duplicates)
+    # We enforce email uniqueness
     email = models.EmailField(unique=True)
 
+    # --- NEW FEATURE: Auto-Sync Logic ---
+    # This magically keeps your old code working. 
+    # If they pick "Landlord" in the dropdown, it sets is_landlord = True automatically.
+    def save(self, *args, **kwargs):
+        if self.user_type == self.LANDLORD:
+            self.is_landlord = True
+        else:
+            self.is_landlord = False
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        # When we print a user, we want to see their username and role
-        role = "Landlord" if self.is_landlord else "Tenant"
-        return f"{self.username} ({role})"
+        # Uses the nice readable name (e.g., "Tenant" instead of "tenant")
+        return f"{self.username} ({self.get_user_type_display()})"

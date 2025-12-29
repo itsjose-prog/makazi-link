@@ -44,11 +44,12 @@
 </div>
 
 <script>
-    // This adds Bootstrap classes to the default Django inputs
-    var inputs = document.querySelectorAll('input');
-    inputs.forEach(function(input) {
-        input.classList.add('form-control');
-        input.classList.add('mb-2');
+    // This adds Bootstrap classes to ALL inputs and the new dropdown
+    var formFields = document.querySelectorAll('input, select');
+    formFields.forEach(function(field) {
+        field.classList.add('form-control');
+        field.classList.add('mb-2');
     });
 </script>
+
 {% endblock %}
